@@ -17,6 +17,7 @@
 #include <openssl/rand.h>
 #include <openssl/err.h>
 
+// AES128 so 128 bit key and 128 bit block size
 #define MAX 128
 
 void handle_errors() {
@@ -32,17 +33,23 @@ int main() {
     if(RAND_load_file("/dev/random", 64) != 64)
         handle_errors();
 
-    // Generating string1
-    if(RAND_bytes(key, MAX) != 1)
+    // Generating key with private PRNG
+    if(RAND_priv_bytes(key, MAX) != 1)
         handle_errors();
 
-    // Generating string2
+    // Generating IV: Do I need private PRNG here?
     if(RAND_bytes(IV, MAX) != 1)
         handle_errors();
 
-    // xoring the strings and printing the result
+    // printing key and IV
+    printf("Key: ");
     for(int i = 0; i < MAX; i++) {
-        
+        printf("%02x ", key[i]);
+    }
+
+    printf("\nIV: ");
+    for(int i = 0; i < MAX; i++) {
+        printf("%02x ", IV[i]);
     }
 
     return 0;
