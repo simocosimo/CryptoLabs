@@ -19,7 +19,7 @@
 #include <math.h>
 
 // 32 bit numbers
-#define MAX 32
+#define MAX 4
 
 void handle_errors() {
     ERR_print_errors_fp(stderr);
@@ -28,22 +28,44 @@ void handle_errors() {
 
 int main() {
 
-    BIGNUM *a = BN_new();
-    BIGNUM *b = BN_new();
-    BIGNUM *r = BN_new();
+    unsigned char num1[MAX];
+    unsigned char num2[MAX];
+
+    unsigned int a = 0;
+    unsigned int b = 0;
+    unsigned int res = 0;
+    unsigned int res2 = 0;
 
     if(RAND_load_file("/dev/random", 64) != 64)
         handle_errors();
 
-    // Generating 32 bit random numbers
-    if(BN_rand(a, MAX, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY) != 1)
+    // Generating the two numbers
+    if(RAND_bytes(num1, MAX) != 1)
         handle_errors();
 
-    if(BN_rand(b, MAX, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ANY) != 1)
+    if(RAND_bytes(num2, MAX) != 1)
         handle_errors();
 
-    unsigned int res = ((unsigned int)a * (unsigned int)b) % (unsigned int)pow(2, 32);
-    printf("a: %d - b: %d\nMoltiplication modulo 2^32: %u", a, b, res);
+    // printing the two numbers in hex
+    printf("(hex)\na: ");
+    for(int i = 0; i < MAX; i++) printf("%02x", num1[i]);
+    printf("\tb: ");
+    for(int i = 0; i < MAX; i++) printf("%02x", num2[i]);
+    
+    // building the int number from previous generated sequences
+    for(int i = 0; i < MAX; i++) {
+        a += (unsigned int)(num1[i] << ((MAX - 1 - i) * 8));
+        b += (unsigned int)(num2[i] << ((MAX - 1 - i) * 8));
+    }
+
+    // printing the int numbers converted
+    printf("\n(int)\na: %lu\tb: %lu", a, b);
+
+    // calculating and printing the result
+    res = (a * b) % (unsigned int)pow(2, 32);
+    res2 = (a % (unsigned int)pow(2, 32)) * (b % (unsigned int)pow(2, 32));
+    printf("\n\n(a*b) mod 2^32\nres1: %u (mod 2^32)", res);
+    printf("\n(a mod 2^32) * (b mod 2^32)\nres2: %u (mod 2^32)", res2);
 
     return 0;
 }
