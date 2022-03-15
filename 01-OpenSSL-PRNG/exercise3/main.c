@@ -16,7 +16,6 @@
 #include <openssl/rand.h>
 #include <openssl/err.h>
 #include <openssl/bn.h>
-#include <math.h>
 
 // 32 bit numbers
 #define MAX 4
@@ -35,6 +34,9 @@ int main() {
     unsigned int b = 0;
     unsigned int res = 0;
     unsigned int res2 = 0;
+
+    // the base of the mod operation
+    unsigned long base = (1UL << 32);
 
     if(RAND_load_file("/dev/random", 64) != 64)
         handle_errors();
@@ -62,8 +64,8 @@ int main() {
     printf("\n(int)\na: %lu\tb: %lu", a, b);
 
     // calculating and printing the result
-    res = (a * b) % (unsigned int)pow(2, 32);
-    res2 = (a % (unsigned int)pow(2, 32)) * (b % (unsigned int)pow(2, 32));
+    res = (a * b) % base;
+    res2 = (a % base) * (b % base);
     printf("\n\n(a*b) mod 2^32\nres1: %u (mod 2^32)", res);
     printf("\n(a mod 2^32) * (b mod 2^32)\nres2: %u (mod 2^32)", res2);
 
