@@ -36,7 +36,7 @@ int main() {
     unsigned int res2 = 0;
 
     // the base of the mod operation
-    unsigned long base = (1UL << 32);
+    unsigned long base = (1UL << (MAX * 8));
 
     if(RAND_load_file("/dev/random", 64) != 64)
         handle_errors();
